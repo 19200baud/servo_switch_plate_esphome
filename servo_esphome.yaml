@@ -1,0 +1,66 @@
+# ESPHome configuration for use with https://www.thingiverse.com/thing:1156995
+
+esphome:
+  name: batcave_light_switch
+  platform: ESP8266
+  board: d1_mini # Set This To Match Your Board
+
+wifi:
+  networks:
+    - ssid: !secret wifi_ssid # References WiFi SSID in secrets.yaml
+      password: !secret wifi_pass # References WiFi Password in secrets.yaml
+      hidden: true # Uncomment if your WiFi SSID is hidden
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Light Switch AP" # WiFi SSID used when configured connection fails
+    password: !secret light_switch_ap_pass # References AP Wifi Password in secrets.yaml
+
+captive_portal:
+
+# Enable logging
+logger:
+#  level: debug
+
+#web_server: # Optional, Uncomment if wanted
+#  port: 80
+  
+# Enable Home Assistant API
+api:
+
+ota:
+
+servo:
+  - id: my_servo
+    output: pwm_output
+
+output:
+  - platform: esp8266_pwm
+    id: pwm_output
+    pin: D6 # Set this to match the pin you are using
+    frequency: 50 Hz # Leave this as-is unless your servo needs a different frequency
+    
+switch:
+  - platform: template
+    name: My Light Switch # Change this to the desired name
+    optimistic: true # Leave this set unless you add feedback for the switch state
+    turn_on_action:
+      - servo.write: # Move Arm Up
+          id: my_servo
+          level: 40%
+      - delay: 1s # Wait 1 second
+      - servo.write: # Move Arm To Center
+          id: my_servo
+          level: 0
+      - delay: 2s # Wait 2 seconds
+      - servo.detach: my_servo # Deactivate Servo
+    turn_off_action:
+      - servo.write: # Move Arm Down
+          id: my_servo
+          level: -40%
+      - delay: 1s # Wait 1 second
+      - servo.write: # Move Arm To Center
+          id: my_servo
+          level: 0
+      - delay: 2s # Wait 2 seconds
+      - servo.detach: my_servo # Deactivate Servo
