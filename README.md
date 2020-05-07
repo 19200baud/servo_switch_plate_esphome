@@ -12,6 +12,6 @@ This yaml file for use with ESPHome is setup to be used with Servo Switch Plate 
 
 ## Optional Changes:
 ### Webserver:
-  Uncomment the lines begging with web_server and port.
+  Uncomment the lines begining with web_server and port.
 ### Arm Movement:
   Change the 40% and -40% to the correct values needed to turn the light switch on and off without hitting the end of travel or stalling the motor.
