@@ -3,12 +3,12 @@
 substitutions:
   device: servo_esphome # Set to desired device name in ESPHome
   switch_name: "Default Light Switch" # Set to desired name in Home Assistant
-  up_position: 40%
-  down_position: -40%
-  center_position: 0%
+  up_position: 40% # Change if your servo is not moving far enough or is hitting the end of travel
+  down_position: -40% # Change if your servo is not moving far enough or is hitting the end of travel
+  center_position: 0% # Change if your servo is not moving far enough or is hitting the end of travel
 
 esphome:
-  name: ${device}
+  name: ${device} # Change this in the substitutions section
   platform: ESP8266
   board: d1_mini # Set This To Match Your Board
 
