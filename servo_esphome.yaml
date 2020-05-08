@@ -1,7 +1,11 @@
 # ESPHome configuration for use with https://www.thingiverse.com/thing:1156995
+---
+substitutions:
+  device: servo_esphome # Set to desired device name in ESPHome
+  switch_name: "Default Light Switch" # Set to desired name in Home Assistant
 
 esphome:
-  name: light_switch
+  name: ${device}
   platform: ESP8266
   board: d1_mini # Set This To Match Your Board
 
@@ -9,18 +13,17 @@ wifi:
   networks:
     - ssid: !secret wifi_ssid # References WiFi SSID in secrets.yaml
       password: !secret wifi_pass # References WiFi Password in secrets.yaml
-      hidden: true # Uncomment if your WiFi SSID is hidden
+#      hidden: true # Uncomment if your WiFi SSID is hidden
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "Light Switch AP" # WiFi SSID used when configured connection fails
-    password: !secret light_switch_ap_pass # References AP Wifi Password in secrets.yaml
+    ssid: ${device} # WiFi SSID used when configured connection fails
+    password: !secret ap_pass # References AP Wifi Password in secrets.yaml
 
 captive_portal:
 
 # Enable logging
 logger:
-#  level: debug
 
 #web_server: # Optional, Uncomment if wanted
 #  port: 80
@@ -42,25 +45,33 @@ output:
     
 switch:
   - platform: template
-    name: My Light Switch # Change this to the desired name
+    name: ${switch_name} # Change the name at the top of the file
     optimistic: true # Leave this set unless you add feedback for the switch state
     turn_on_action:
-      - servo.write: # Move Arm Up
-          id: my_servo
-          level: 40%
-      - delay: 1s # Wait 1 second
-      - servo.write: # Move Arm To Center
-          id: my_servo
-          level: 0
-      - delay: 2s # Wait 2 seconds
-      - servo.detach: my_servo # Deactivate Servo
+      - script.execute: move_up
     turn_off_action:
-      - servo.write: # Move Arm Down
+      - script.execute: move_down
+      
+script:
+  - id: move_up
+    then: 
+      - servo.write:
           id: my_servo
-          level: -40%
-      - delay: 1s # Wait 1 second
-      - servo.write: # Move Arm To Center
+          level: ${up_position}
+      - delay: 1s
+      - servo.write:
           id: my_servo
-          level: 0
-      - delay: 2s # Wait 2 seconds
-      - servo.detach: my_servo # Deactivate Servo
+          level: ${center_position}
+      - delay: 2s
+      - servo.detach: my_servo
+  - id: move_down
+    then: 
+      - servo.write:
+          id: my_servo
+          level: ${down_position}
+      - delay: 1s
+      - servo.write:
+          id: my_servo
+          level: ${center_position}
+      - delay: 2s
+      - servo.detach: my_servo
